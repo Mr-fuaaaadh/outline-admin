@@ -29,7 +29,6 @@ const FormLayouts = () => {
         axios.defaults.headers.common['Accept'] = 'application/json';
         
 
-        fetchData();
     }, []);
 
     const formik = useFormik({

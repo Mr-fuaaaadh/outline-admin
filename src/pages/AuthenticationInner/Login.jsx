@@ -50,8 +50,6 @@ const Login = () => {
 
 
         console.log("Login successful:", response.data);
-
-        // Save the access token
         localStorage.setItem("authToken", response.data.access);
 
         navigate("/dashboard");

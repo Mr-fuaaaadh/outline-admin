@@ -26,7 +26,6 @@ const DatatableTables = () => {
         axios.defaults.headers.common['Accept'] = 'application/json';
         
 
-        fetchData();
     }, []);
 
     // Fetch news data
