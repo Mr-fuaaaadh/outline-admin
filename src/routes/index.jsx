@@ -78,6 +78,7 @@ import NewsEdit from "../pages/News/edit";
 import Tags from "../pages/Tags/table";
 
 import Comments  from "../pages/Comments/table";
+import DashboardBlog from "../store/dashboard-blog/reducer";
 
 const authProtectedRoutes = [
 
@@ -100,10 +101,10 @@ const authProtectedRoutes = [
   { path: "/comments/", component: <Comments /> },
 
 
-  { path: "/dashboard", component: <Dashboard /> },
+  { path: "/dashboard", component: <Blog /> },
   { path: "/dashboard-saas", component: <DashboardSaas /> },
   { path: "/dashboard-crypto", component: <DashboardCrypto /> },
-  { path: "/blog", component: <Blog /> },
+  // { path: "/blog", component: <Blog /> },
   { path: "/dashboard-job", component: <DashboardJob /> },
 
   //   //Crypto

@@ -166,12 +166,12 @@ const FormLayouts = () => {
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumbs title="Forms" breadcrumbItem="Form Layouts" />
+                    <Breadcrumbs title="Forms" breadcrumbItem="Add News" />
                     <Row>
                         <Col xl={12}>
                             <Card>
                                 <CardBody>
-                                    <CardTitle className="mb-4">Form Grid Layout</CardTitle>
+                                    {/* <CardTitle className="mb-4">Form Grid Layout</CardTitle> */}
 
                                     <Form onSubmit={formik.handleSubmit}>
                                         <div className="mb-3">
@@ -191,18 +191,28 @@ const FormLayouts = () => {
                                         <Row>
                                             <Col lg={6}>
                                                 <div className="mb-3">
-                                                    <Label htmlFor="slug">Slug</Label>
-                                                    <Input
-                                                        type="text"
-                                                        name="slug"
-                                                        id="slug"
-                                                        value={formik.values.slug}
-                                                        onChange={formik.handleChange}
-                                                        onBlur={formik.handleBlur}
-                                                        invalid={formik.touched.slug && !!formik.errors.slug}
-                                                    />
-                                                    <FormFeedback>{formik.errors.slug}</FormFeedback>
-                                                </div>
+    <Label htmlFor="slug">Slug</Label>
+    <Input
+        type="text"
+        name="slug"
+        id="slug"
+        value={formik.values.slug}
+        onChange={(e) => {
+            const formattedSlug = e.target.value
+                .toLowerCase()
+                .replace(/\s+/g, '-')         // Replace spaces with hyphens
+                .replace(/[^a-z0-9-]/g, '');   // Remove non-English & special characters
+            formik.setFieldValue("slug", formattedSlug);
+        }}
+        onBlur={formik.handleBlur}
+        invalid={formik.touched.slug && !!formik.errors.slug}
+    />
+    <FormFeedback>{formik.errors.slug}</FormFeedback>
+    <small className="text-muted">
+        Slug must contain only lowercase English letters, numbers, and hyphens. Malayalam and special characters are not allowed. Example: <code>latest-news</code>
+    </small>
+</div>
+
                                             </Col>
                                             <Col lg={6}>
                                                 <div className="mb-3">

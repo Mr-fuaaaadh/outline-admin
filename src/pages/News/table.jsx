@@ -134,7 +134,7 @@ const DatatableTables = () => {
     return (
         <div className="page-content">
             <div className="container-fluid">
-                <Breadcrumbs title="Tables" breadcrumbItem="News Data Table" />
+                <Breadcrumbs title="Tables" breadcrumbItem="News List" />
                 <TableContainer
                     columns={columns}
                     data={loading ? [] : newsData}

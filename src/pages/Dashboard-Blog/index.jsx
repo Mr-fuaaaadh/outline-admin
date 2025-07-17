@@ -21,7 +21,7 @@ const index = () => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumbs title="Dashboards" breadcrumbItem="Blog" />
+          <Breadcrumbs title="Dashboards" breadcrumbItem="Dashboard" />
           <Row>
             <CardUser dataColors='["--bs-primary", "--bs-warning"]' />
             <Settings />

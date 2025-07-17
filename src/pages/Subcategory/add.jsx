@@ -27,7 +27,7 @@ const FormLayouts = () => {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         axios.defaults.headers.common['Content-Type'] = 'application/json';
         axios.defaults.headers.common['Accept'] = 'application/json';
-        
+
 
     }, []);
 
@@ -103,12 +103,12 @@ const FormLayouts = () => {
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumbs title="Forms" breadcrumbItem="Add Category" />
+                    <Breadcrumbs title="Forms" breadcrumbItem="Add Sub Category" />
                     <Row>
                         <Col lg={12}>
                             <Card>
                                 <CardBody>
-                                    <CardTitle className="mb-4">Add New Category</CardTitle>
+                                    {/* <CardTitle className="mb-4">Add New Category</CardTitle> */}
 
                                     {successMessage && <Alert color="success">{successMessage}</Alert>}
                                     {errorMessage && <Alert color="danger">{errorMessage}</Alert>}
@@ -137,12 +137,22 @@ const FormLayouts = () => {
                                                 name="slug"
                                                 placeholder="Enter slug"
                                                 value={formik.values.slug}
-                                                onChange={formik.handleChange}
+                                                onChange={(e) => {
+                                                    const formattedSlug = e.target.value
+                                                        .toLowerCase()
+                                                        .replace(/\s+/g, '-')         // Replace spaces with hyphens
+                                                        .replace(/[^a-z0-9-]/g, '');   // Remove non-English and special characters
+                                                    formik.setFieldValue("slug", formattedSlug);
+                                                }}
                                                 onBlur={formik.handleBlur}
                                                 invalid={formik.touched.slug && formik.errors.slug ? true : false}
                                             />
                                             <FormFeedback>{formik.errors.slug}</FormFeedback>
+                                            <small className="text-muted">
+                                                Slug should contain only lowercase English letters, numbers, and hyphens. No Malayalam or special characters. Example: <code>new-subcategory</code>
+                                            </small>
                                         </div>
+
 
 
                                         <div className="mb-3">

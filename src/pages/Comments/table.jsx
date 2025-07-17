@@ -126,7 +126,7 @@ const DatatableTables = () => {
     return (
         <div className="page-content">
             <div className="container-fluid">
-                <Breadcrumbs title="Tables" breadcrumbItem="Data Tables" />
+                <Breadcrumbs title="Tables" breadcrumbItem="Comment List" />
 
                 <div className="mb-3">
                     <button className="btn btn-success" onClick={handleAdd}>Add Comment</button>
