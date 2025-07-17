@@ -160,7 +160,7 @@ const SidebarContent = (props) => {
                 <i className="bx bx-home-circle"></i>
                 <span>{props.t("Dashboards")}</span>
               </Link>
-              <ul className="sub-menu" aria-expanded="false">
+              {/* <ul className="sub-menu" aria-expanded="false">
                 <li>
                   <Link to="/dashboard">{props.t("Default")}</Link>
                 </li>
@@ -178,7 +178,7 @@ const SidebarContent = (props) => {
                     {props.t("Job")}
                   </Link>
                 </li>
-              </ul>
+              </ul> */}
             </li>
 
             <li className="menu-title">{props.t("Apps")}</li>
@@ -193,9 +193,9 @@ const SidebarContent = (props) => {
                 <li>
                   <Link to="/customers/">{props.t("Users")}</Link>
                 </li>
-                <li>
+                {/* <li>
                   <Link to="/customers/add/">{props.t("add users")}</Link>
-                </li>
+                </li> */}
               </ul>
             </li>
 
@@ -208,9 +208,9 @@ const SidebarContent = (props) => {
                 <li>
                   <Link to="/category/">{props.t("category list")}</Link>
                 </li>
-                {/* <li>
-                  <Link to="/customers/add/">{props.t("add users")}</Link>
-                </li> */}
+                <li>
+                  <Link to="/category/add/">{props.t("add category")}</Link>
+                </li>
               </ul>
             </li>
 
@@ -522,7 +522,7 @@ const SidebarContent = (props) => {
               </ul>
             </li> */}
 
-            <li className="menu-title">Pages</li>
+            {/* <li className="menu-title">Pages</li>
             <li>
               <Link to="/#" className="has-arrow ">
                 <i className="bx bx-user-circle"></i>
@@ -588,7 +588,7 @@ const SidebarContent = (props) => {
                   </Link>
                 </li>
               </ul>
-            </li>
+            </li> */}
             {/* <li>
               <Link to="/#" className="has-arrow ">
                 <i className="bx bx-file"></i>

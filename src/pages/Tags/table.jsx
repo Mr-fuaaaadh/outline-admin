@@ -17,14 +17,14 @@ const DatatableTables = () => {
     const [formData, setFormData] = useState({ name: "", slug: "", image: "" });
     const [editId, setEditId] = useState(null);
 
-    const navigate = useNavigate(); // ✅ for redirect
+    const navigate = useNavigate(); 
 
     useEffect(() => {
         const token = localStorage.getItem("authToken");
 
         if (!token) {
             console.warn("No auth token found. Redirecting to login...");
-            navigate("/login"); // ✅ redirect to login
+            navigate("/login"); 
             return;
         }
 
@@ -39,7 +39,6 @@ const DatatableTables = () => {
 
 
 
-    // Fetch data with Axios
     const fetchData = () => {
         setLoading(true);
         axios.get("https://backend.outlinekerala.com/admin_app/api/tags/")

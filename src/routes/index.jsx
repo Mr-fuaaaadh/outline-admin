@@ -65,6 +65,7 @@ import Customer from "../pages/Customers/table";
 import AddCustomer from "../pages/Customers/add";
 
 import Category from "../pages/Category/table";
+import CategoryAdd from "../pages/Category/add";
 
 import Subcategory from "../pages/Subcategory/table";
 import SubcategoryAdd from "../pages/Subcategory/add";
@@ -85,6 +86,7 @@ const authProtectedRoutes = [
   { path: "/customers/add/", component: <AddCustomer /> },
 
   { path: "/category/", component: <Category /> },
+  { path: "/category/add/", component: <CategoryAdd /> },
 
   { path: "/subcategory/", component: <Subcategory /> },
   { path: "/subcategory/add/", component: <SubcategoryAdd /> },
