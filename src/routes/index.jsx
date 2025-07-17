@@ -65,7 +65,7 @@ import Customer from "../pages/Customers/table";
 import AddCustomer from "../pages/Customers/add";
 
 import Category from "../pages/Category/table";
-import CategoryAdd from "../pages/Category/add";
+import CategoryAdd from "../pages/Category/Add";
 
 import Subcategory from "../pages/Subcategory/table";
 import SubcategoryAdd from "../pages/Subcategory/add";
