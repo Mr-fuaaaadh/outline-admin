@@ -76,6 +76,7 @@ import NewsEdit from "../pages/News/edit";
 
 
 import Tags from "../pages/Tags/table";
+import AddTags from "../pages/Tags/add";
 
 import Comments  from "../pages/Comments/table";
 import DashboardBlog from "../store/dashboard-blog/reducer";
@@ -98,6 +99,7 @@ const authProtectedRoutes = [
 
 
   { path: "/tags/", component: <Tags /> },
+  { path: "/tags/add/", component: <AddTags /> },
   { path: "/comments/", component: <Comments /> },
 
 
