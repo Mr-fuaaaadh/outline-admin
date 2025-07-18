@@ -7,11 +7,39 @@ import { useSelector, useDispatch } from 'react-redux';
 import { createSelector } from "reselect";
 import { dashboardBlogVisitorData } from '../../store/actions';
 import { blogStatsData } from "../../common/data";
+import axios from "axios";
 
 const CardUser = ({ dataColors }) => {
-
   const apexCardUserChartColors = getChartColorsArray(dataColors);
   const dispatch = useDispatch();
+
+  // News stats state
+  const [totalArticles, setTotalArticles] = useState(0);
+  const [totalAuthors, setTotalAuthors] = useState(0);
+  const [totalComments, setTotalComments] = useState(0);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Content-Type"] = "application/json";
+    axios.defaults.headers.common["Accept"] = "application/json";
+
+    // Fetch total news articles
+    axios.get("https://backend.outlinekerala.com/admin_app/api/news/create/")
+      .then(res => setTotalArticles(res.data.length))
+      .catch(() => setTotalArticles(0));
+
+    // Fetch total authors
+    axios.get("https://backend.outlinekerala.com/admin_app/api/users/")
+      .then(res => setTotalAuthors(res.data.length))
+      .catch(() => setTotalAuthors(0));
+
+    // Fetch total comments
+    axios.get("https://backend.outlinekerala.com/admin_app/api/comments/")
+      .then(res => setTotalComments(res.data.length))
+      .catch(() => setTotalComments(0));
+  }, []);
 
   useEffect(() => {
     dispatch(dashboardBlogVisitorData(1));
@@ -25,7 +53,6 @@ const CardUser = ({ dataColors }) => {
   );
 
   const { visitor } = useSelector(DashboardblogProperties);
-
   const visitors = visitor[0] || [];
   const [activeTab, setActiveTab] = useState(1);
 
@@ -77,7 +104,6 @@ const CardUser = ({ dataColors }) => {
     markers: {
       size: 3,
       strokeWidth: 3,
-
       hover: {
         size: 4,
         sizeOffset: 2,
@@ -91,29 +117,62 @@ const CardUser = ({ dataColors }) => {
 
   return (
     <React.Fragment>
-      <Col xl={8}>
+      <Col xl={12}>
         <Row>
-          {(blogStatsData || [])?.map((stat, index) => (
-            <Col lg={4} key={index}>
-              <Card className="blog-stats-wid">
-                <CardBody>
-                  <div className="d-flex flex-wrap">
-                    <div className="me-3">
-                      <p className="text-muted mb-2">{stat.title}</p>
-                      <h5 className="mb-0">{stat.value}</h5>
-                    </div>
-                    <div className="avatar-sm ms-auto">
-                      <div className="avatar-title bg-light rounded-circle text-primary font-size-20">
-                        <i className={stat.icon}></i>
-                      </div>
+          <Col lg={4}>
+            <Card className="blog-stats-wid">
+              <CardBody>
+                <div className="d-flex flex-wrap">
+                  <div className="me-3">
+                    <p className="text-muted mb-2">Total News Articles</p>
+                    <h5 className="mb-0">{totalArticles}</h5>
+                  </div>
+                  <div className="avatar-sm ms-auto">
+                    <div className="avatar-title bg-light rounded-circle text-primary font-size-20">
+                      <i className="mdi mdi-newspaper"></i>
                     </div>
                   </div>
-                </CardBody>
-              </Card>
-            </Col>
-          ))}
+                </div>
+              </CardBody>
+            </Card>
+          </Col>
+          <Col lg={4}>
+            <Card className="blog-stats-wid">
+              <CardBody>
+                <div className="d-flex flex-wrap">
+                  <div className="me-3">
+                    <p className="text-muted mb-2">Total Users</p>
+                    <h5 className="mb-0">{totalAuthors}</h5>
+                  </div>
+                  <div className="avatar-sm ms-auto">
+                    <div className="avatar-title bg-light rounded-circle text-primary font-size-20">
+                      <i className="mdi mdi-account-multiple"></i>
+                    </div>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </Col>
+          <Col lg={4}>
+            <Card className="blog-stats-wid">
+              <CardBody>
+                <div className="d-flex flex-wrap">
+                  <div className="me-3">
+                    <p className="text-muted mb-2">Total Comments</p>
+                    <h5 className="mb-0">{totalComments}</h5>
+                  </div>
+                  <div className="avatar-sm ms-auto">
+                    <div className="avatar-title bg-light rounded-circle text-primary font-size-20">
+                      <i className="mdi mdi-comment-multiple-outline"></i>
+                    </div>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          </Col>
         </Row>
 
+        {/* Visitor Chart Section (unchanged) */}
         <Card>
           <CardBody>
             <div className="d-flex flex-wrap">

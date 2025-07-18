@@ -1,5 +1,5 @@
-import React from "react"
-import { Link } from "react-router-dom"
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Card,
   CardBody,
@@ -7,16 +7,33 @@ import {
   UncontrolledDropdown,
   DropdownMenu,
   DropdownToggle,
-} from "reactstrap"
-
-//SimpleBar
-import SimpleBar from "simplebar-react"
-import { commentsData } from "../../common/data"
+} from "reactstrap";
+import SimpleBar from "simplebar-react";
+import axios from "axios";
 
 const Comments = () => {
+  const [comments, setComments] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(10);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Content-Type"] = "application/json";
+    axios.defaults.headers.common["Accept"] = "application/json";
+
+    axios.get("https://backend.outlinekerala.com/admin_app/api/comments/")
+      .then(res => setComments(res.data))
+      .catch(() => setComments([]));
+  }, []);
+
+  const handleLoadMore = () => {
+    setVisibleCount(count => count + 10);
+  };
+
   return (
     <React.Fragment>
-      <Col xl={4} lg={6}>
+      <Col xl={6} lg={6}>
         <Card>
           <CardBody>
             <div className="d-flex flex-wrap align-items-start">
@@ -38,7 +55,7 @@ const Comments = () => {
             </div>
             <SimpleBar style={{ maxHeight: "300px" }}>
               <ul className="list-group list-group-flush">
-                {(commentsData || [])?.map((comment, index) => (
+                {(comments || []).slice(0, visibleCount).map((comment, index) => (
                   <li className="list-group-item py-3" key={index}>
                     <div className="d-flex">
                       <div className="flex-shrink-0 me-3">
@@ -50,59 +67,31 @@ const Comments = () => {
                       </div>
                       <div className="flex-grow-1">
                         <h5 className="font-size-14 mb-1">
-                          {comment.name}{" "}
-                          <small className="text-muted float-end">{comment.time}</small>
+                          {comment.user?.name || comment.user?.username || comment.username || 'User'}
+                          <small className="text-muted float-end">{comment.created_at ? new Date(comment.created_at).toLocaleString() : ''}</small>
                         </h5>
-                        <p className="text-muted">{comment.content}  </p>
-                        {comment.replies && (
-                          <React.Fragment>
-                            <div>
-                              <Link to="#" className="text-success"><i className="mdi mdi-reply"></i> Reply</Link>
-                            </div>
-                            <div className="d-flex pt-3">
-                              <div className="flex-shrink-0 me-3">
-                                <div className="avatar-xs">
-                                  <div className="avatar-title rounded-circle bg-light text-primary">
-                                    <i className="bx bxs-user"></i>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="flex-grow-1">
-                                {(comment.replies || [])?.map((reply, replyIndex) => (
-                                  <div key={replyIndex}>
-                                    <h5 className="font-size-14 mb-1">
-                                      {reply.name}{" "}
-                                      <small className="text-muted float-end">{reply.time} </small>
-                                    </h5>
-                                    <p className="text-muted">{reply.content} </p>
-                                  </div>
-                                ))}
-                                <div>
-                                  <Link to="#" className="text-success"><i className="mdi mdi-reply"></i> Reply</Link>
-                                </div>
-                              </div>
-                            </div>
-                          </React.Fragment>
-                        )}
-                        {
-                          !comment.replies &&
-                          <div>
-                            <Link to="#!" className="text-success">
-                              <i className="mdi mdi-reply me-1"></i> Reply
-                            </Link>
-                          </div>
-                        }
+                        <p className="text-muted">{comment.content}</p>
+                        {/* <div>
+                          <Link to="#" className="text-success"><i className="mdi mdi-reply"></i> Reply</Link>
+                        </div> */}
                       </div>
                     </div>
                   </li>
                 ))}
               </ul>
             </SimpleBar>
+            {visibleCount < comments.length && (
+              <div className="text-center mt-3">
+                <button onClick={handleLoadMore} className="btn btn-primary btn-sm">
+                  Load More
+                </button>
+              </div>
+            )}
           </CardBody>
         </Card>
       </Col>
     </React.Fragment>
-  )
+  );
 }
 
-export default Comments
+export default Comments;

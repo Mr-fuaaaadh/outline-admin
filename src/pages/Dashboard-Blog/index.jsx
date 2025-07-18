@@ -24,12 +24,12 @@ const index = () => {
           <Breadcrumbs title="Dashboards" breadcrumbItem="Dashboard" />
           <Row>
             <CardUser dataColors='["--bs-primary", "--bs-warning"]' />
-            <Settings />
+            {/* <Settings /> */}
           </Row>
           <Row>
             <Posts />
             <Comments />
-            <TapVisitors />
+            {/* <TapVisitors /> */}
           </Row>
           <Row>
             <Activity />
