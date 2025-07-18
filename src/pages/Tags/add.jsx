@@ -8,7 +8,7 @@ import Breadcrumbs from "../../components/Common/Breadcrumb";
 import { useNavigate } from "react-router-dom"; // ✅ for redirect
 
 const FormLayouts = () => {
-    document.title = "Add Category | Admin Panel";
+    document.title = "Add TAg | Admin Panel";
 
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -52,7 +52,7 @@ const FormLayouts = () => {
                     console.log(`${pair[0]}:`, pair[1]);
                 }
 
-                const response = await axios.post("https://backend.outlinekerala.com/admin_app/api/comments/", formData, {
+                const response = await axios.post("https://backend.outlinekerala.com/admin_app/api/tags/", formData, {
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
@@ -76,7 +76,7 @@ const FormLayouts = () => {
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumbs title="Forms" breadcrumbItem="Add Category" />
+                    <Breadcrumbs title="Forms" breadcrumbItem="Add Tags" />
                     <Row>
                         <Col lg={12}>
                             <Card>
