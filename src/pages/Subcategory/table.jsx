@@ -47,15 +47,21 @@ const DatatableTables = () => {
                     realId: user.id,
                     name: user.name || 'N/A',
                     slug: user.slug || 'N/A',
-                    image: user.image || 'N/A',
+                    image: user.image ? `https://backend.outlinekerala.com${user.image}` : 'N/A',
                 }));
                 setCategory(users);
                 setLoading(false);
             })
             .catch(error => {
-                console.error("Error fetching user data:", error);
-                setError("Failed to load data.");
-                setLoading(false);
+                if (error.response && error.response.status === 401) {
+                    console.warn("Invalid or expired token. Redirecting to login...");
+                    localStorage.removeItem("authToken");
+                    window.location.replace("/login");
+                } else {
+                    console.error("Error fetching subcategory data:", error);
+                    setError("Failed to load data.");
+                    setLoading(false);
+                }
             });
     };
 
@@ -259,7 +265,7 @@ const DatatableTables = () => {
         },
     ], []);
 
-    document.title = "Data Tables | Skote - Vite React Admin & Dashboard Template";
+    document.title = "Sub Category | Outline Kerala";
 
     return (
         <div className="page-content">

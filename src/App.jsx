@@ -9,6 +9,7 @@ import { createSelector } from "reselect";
 
 // Import Routes all
 import { authProtectedRoutes, publicRoutes } from "./routes/index";
+import NotFound from "./pages/404";
 
 // Import all middleware
 import Authmiddleware from "./routes/route";
@@ -93,6 +94,7 @@ const App = (props) => {
             exact={true}
           />
         ))}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </React.Fragment>
   );

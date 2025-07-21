@@ -77,7 +77,6 @@ function* changeLayoutMode({ payload: mode }) {
     // yield call(changeBodyAttribute, "data-layout-mode", mode);
     yield call(changeHtmlAttribute, "data-bs-theme", mode);
   } catch (error) {
-    // console.log(error);
   }
 }
 

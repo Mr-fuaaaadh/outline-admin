@@ -50,8 +50,14 @@ const DatatableTables = () => {
                 setLoading(false);
             })
             .catch(error => {
-                console.error("Error fetching news data:", error);
-                setLoading(false);
+                if (error.response && error.response.status === 401) {
+                    console.warn("Invalid or expired token. Redirecting to login...");
+                    localStorage.removeItem("authToken");
+                    window.location.replace("/login");
+                } else {
+                    console.error("Error fetching news data:", error);
+                    setLoading(false);
+                }
             });
     }, []);
 
@@ -129,7 +135,7 @@ const DatatableTables = () => {
         }
     ], [navigate]);
 
-    document.title = "News Data Table | Skote - Vite React Admin";
+    document.title = "News | Outline Kerala";
 
     return (
         <div className="page-content">

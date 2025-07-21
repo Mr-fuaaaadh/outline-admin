@@ -2,6 +2,7 @@
 import React, { useMemo, useEffect, useState } from "react";
 import PropTypes from 'prop-types';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 // Import components
 import Breadcrumbs from '../../components/Common/Breadcrumb';
@@ -14,6 +15,8 @@ const DatatableTables = () => {
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({ content: "", approved: false });
     const [editId, setEditId] = useState(null);
+
+    const navigate = useNavigate();
 
     // Fetch data
     const fetchData = () => {
@@ -29,7 +32,17 @@ const DatatableTables = () => {
                 }));
                 setComments(formatted);
             })
-            .catch(err => setError(err))
+            .catch(error => {
+                if (error.response && error.response.status === 401) {
+                    console.warn("Invalid or expired token. Redirecting to login...");
+                    localStorage.removeItem("authToken");
+                    window.location.replace("/login");
+                } else {
+                    console.error("Error fetching comments data:", error);
+                    setError("Failed to load data.");
+                    setLoading(false);
+                }
+            })
             .finally(() => setLoading(false));
     };
 
@@ -121,7 +134,7 @@ const DatatableTables = () => {
         },
     ], []);
 
-    document.title = "Data Tables | Skote - Vite React Admin & Dashboard Template";
+    document.title = "Comments | Outline Kerala";
 
     return (
         <div className="page-content">

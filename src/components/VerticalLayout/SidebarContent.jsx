@@ -168,6 +168,7 @@ const SidebarContent = (props) => {
               <Link to="/#" className="has-arrow">
                 <i className="bx bx-store"></i>
                 <span>{props.t("Users")}</span>
+                
               </Link>
               <ul className="sub-menu" aria-expanded="false">
                 <li>

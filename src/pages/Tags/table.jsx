@@ -53,9 +53,13 @@ const DatatableTables = () => {
                 setLoading(false);
             })
             .catch(error => {
-                console.error("Error fetching user data:", error);
-                setError("Failed to load data.");
-                setLoading(false);
+                if (error.response && error.response.status === 401) {
+                    localStorage.removeItem("authToken");
+                    window.location.replace("/login");
+                } else {
+                    setError("Failed to load data.");
+                    setLoading(false);
+                }
             });
     };
 
@@ -64,7 +68,6 @@ const DatatableTables = () => {
     }, []);
 
     const handleDelete = (realId) => {
-        console.log("Deleting category with ID:", realId);
         if (window.confirm("Are you sure you want to delete this category?")) {
             axios.delete(`https://backend.outlinekerala.com/admin_app/api/tags/${realId}/`)
                 .then(() => fetchData())
@@ -106,13 +109,10 @@ const DatatableTables = () => {
             })
             .catch(error => {
                 if (error.response) {
-                    console.error("Error Response:", error.response);
                     alert(`Operation failed: ${JSON.stringify(error.response.data, null, 2)}`);
                 } else if (error.request) {
-                    console.error("No response received:", error.request);
                     alert("No response from server.");
                 } else {
-                    console.error("Error Message:", error.message);
                     alert("Request setup error: " + error.message);
                 }
             });
@@ -229,7 +229,7 @@ const DatatableTables = () => {
         },
     ], []);
 
-    document.title = "Data Tables | Skote - Vite React Admin & Dashboard Template";
+    document.title = "Tag List | Outline Kerala";
 
     return (
         <div className="page-content">

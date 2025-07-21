@@ -23,7 +23,7 @@ import axios from "axios";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const FormLayouts = () => {
-    document.title = "Form Layouts | Skote - Vite React Admin & Dashboard Template";
+    document.title = "add news | Outline Kerala";
 
     const [tagsOptions, setTagsOptions] = useState([]);
     const [categoryOptions, setCategoryOptions] = useState([]);
@@ -34,7 +34,6 @@ const FormLayouts = () => {
         const token = localStorage.getItem("authToken");
 
         if (!token) {
-            console.warn("No auth token found. Redirecting to login...");
             navigate("/login"); // ✅ redirect to login
             return;
         }
@@ -42,7 +41,7 @@ const FormLayouts = () => {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         axios.defaults.headers.common['Content-Type'] = 'application/json';
         axios.defaults.headers.common['Accept'] = 'application/json';
-        
+
 
     }, []);
 
@@ -122,28 +121,28 @@ const FormLayouts = () => {
             return errors;
         },
 
-        onSubmit: async (values) => {
-            const formData = new FormData();
-            formData.append("title", values.title);
-            formData.append("name", values.name);
-            formData.append("slug", values.slug);
-            formData.append("content", values.content); // uncommented to send content
-            formData.append("image", values.image);
-            formData.append("category", values.category);
-            formData.append("status", values.status);
-            formData.append("publish_date", values.publish_date);
-
-            // Append each tag with the same key 'tags'
-            values.tags.forEach(tag => {
-                formData.append('tags', tag.value);
-            });
-
-            // Debug log
-            for (let pair of formData.entries()) {
-                console.log(pair[0], pair[1]);
-            }
-
+        onSubmit: async (values, { resetForm }) => {
             try {
+                const formData = new FormData();
+                formData.append("title", values.title);
+                formData.append("name", values.name);
+                formData.append("slug", values.slug);
+                formData.append("content", values.content); // uncommented to send content
+                formData.append("image", values.image);
+                formData.append("category", values.category);
+                formData.append("status", values.status);
+                formData.append("publish_date", values.publish_date);
+
+                // Append each tag with the same key 'tags'
+                values.tags.forEach(tag => {
+                    formData.append('tags', tag.value);
+                });
+
+                // Debug log
+                for (let pair of formData.entries()) {
+                    console.log(pair[0], pair[1]);
+                }
+
                 const response = await axios.post(
                     "https://backend.outlinekerala.com/admin_app/api/news/create/",
                     formData,
@@ -154,8 +153,14 @@ const FormLayouts = () => {
                 formik.resetForm();
                 editorRef.current?.setContent("");
             } catch (error) {
-                console.error("Backend response error:", error.response?.data || error);
-                alert("Submission failed.");
+                if (error.response && error.response.status === 401) {
+                    console.warn("Invalid or expired token. Redirecting to login...");
+                    localStorage.removeItem("authToken");
+                    window.location.replace("/login");
+                } else {
+                    console.error("Backend response error:", error.response?.data || error);
+                    alert("Submission failed.");
+                }
             }
         }
 
@@ -191,27 +196,27 @@ const FormLayouts = () => {
                                         <Row>
                                             <Col lg={6}>
                                                 <div className="mb-3">
-    <Label htmlFor="slug">Slug</Label>
-    <Input
-        type="text"
-        name="slug"
-        id="slug"
-        value={formik.values.slug}
-        onChange={(e) => {
-            const formattedSlug = e.target.value
-                .toLowerCase()
-                .replace(/\s+/g, '-')         // Replace spaces with hyphens
-                .replace(/[^a-z0-9-]/g, '');   // Remove non-English & special characters
-            formik.setFieldValue("slug", formattedSlug);
-        }}
-        onBlur={formik.handleBlur}
-        invalid={formik.touched.slug && !!formik.errors.slug}
-    />
-    <FormFeedback>{formik.errors.slug}</FormFeedback>
-    <small className="text-muted">
-        Slug must contain only lowercase English letters, numbers, and hyphens. Malayalam and special characters are not allowed. Example: <code>latest-news</code>
-    </small>
-</div>
+                                                    <Label htmlFor="slug">Slug</Label>
+                                                    <Input
+                                                        type="text"
+                                                        name="slug"
+                                                        id="slug"
+                                                        value={formik.values.slug}
+                                                        onChange={(e) => {
+                                                            const formattedSlug = e.target.value
+                                                                .toLowerCase()
+                                                                .replace(/\s+/g, '-')         // Replace spaces with hyphens
+                                                                .replace(/[^a-z0-9-]/g, '');   // Remove non-English & special characters
+                                                            formik.setFieldValue("slug", formattedSlug);
+                                                        }}
+                                                        onBlur={formik.handleBlur}
+                                                        invalid={formik.touched.slug && !!formik.errors.slug}
+                                                    />
+                                                    <FormFeedback>{formik.errors.slug}</FormFeedback>
+                                                    <small className="text-muted">
+                                                        Slug must contain only lowercase English letters, numbers, and hyphens. Malayalam and special characters are not allowed. Example: <code>latest-news</code>
+                                                    </small>
+                                                </div>
 
                                             </Col>
                                             <Col lg={6}>

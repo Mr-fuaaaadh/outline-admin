@@ -22,7 +22,7 @@ import { useParams } from "react-router-dom";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const FormLayouts = () => {
-    document.title = "Form Layouts | Skote - Vite React Admin & Dashboard Template";
+    document.title = "update news| Outline Kerala";
 
     const { id } = useParams(); // get id from URL params
 

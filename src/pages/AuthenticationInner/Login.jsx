@@ -19,7 +19,7 @@ const Login = () => {
   const [show, setShow] = useState(false);
 
   //meta title
-  document.title = "Login | Skote - Vite React Admin & Dashboard Template";
+  document.title = "Login | Outline Kerala";
   const navigate = useNavigate();
 
   const validation = useFormik({

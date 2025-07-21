@@ -8,7 +8,7 @@ import Breadcrumbs from "../../components/Common/Breadcrumb";
 import { useNavigate } from "react-router-dom"; // ✅ for redirect
 
 const FormLayouts = () => {
-    document.title = "Add TAg | Admin Panel";
+    document.title = "Add TAg | Outline Kerala";
 
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -62,10 +62,16 @@ const FormLayouts = () => {
                 setErrorMessage("");
                 resetForm();
             } catch (error) {
-                const errorText = error.response?.data || error.message;
-                console.error("POST error:", errorText);
-                setErrorMessage(JSON.stringify(errorText));
-                setSuccessMessage("");
+                if (error.response && error.response.status === 401) {
+                    console.warn("Invalid or expired token. Redirecting to login...");
+                    localStorage.removeItem("authToken");
+                    window.location.replace("/login");
+                } else {
+                    const errorText = error.response?.data || error.message;
+                    console.error("POST error:", errorText);
+                    setErrorMessage(JSON.stringify(errorText));
+                    setSuccessMessage("");
+                }
             }
         }
 

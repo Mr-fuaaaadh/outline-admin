@@ -162,7 +162,7 @@ const DatatableTables = () => {
     }
   };
 
-  document.title = "Data Tables | Skote - Vite React Admin & Dashboard Template";
+  document.title = "Customers | Outline Kerala";
 
   return (
     <div className="page-content">

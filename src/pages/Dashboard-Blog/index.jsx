@@ -15,7 +15,7 @@ import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const index = () => {
   //meta title
-  document.title = "Blog Dashboard | Skote - Vite React Admin & Dashboard Template";
+  document.title = "Dashboard | Outline Kerala";
 
   return (
     <React.Fragment>

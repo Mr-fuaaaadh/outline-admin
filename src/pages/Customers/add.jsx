@@ -38,7 +38,6 @@ const FormLayouts = () => {
         const token = localStorage.getItem("authToken");
 
         if (!token) {
-            console.warn("No auth token found. Redirecting to login...");
             navigate("/login"); // ✅ redirect to login
             return;
         }
@@ -100,7 +99,6 @@ const FormLayouts = () => {
                     }
                 );
 
-                console.log("Form submitted successfully:", response.data);
                 setSuccessMessage("User created successfully!");
                 setErrorMessage("");
                 formik.resetForm(); // Optional: reset form on success
