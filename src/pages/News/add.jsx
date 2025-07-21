@@ -14,7 +14,10 @@ import {
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import Select from "react-select";
-import { Editor } from "@tinymce/tinymce-react";
+import { EditorState, convertToRaw } from "draft-js";
+import { Editor } from "react-draft-wysiwyg";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import draftToHtml from "draftjs-to-html";
 import { useNavigate } from "react-router-dom"; // ✅ for redirect
 
 import axios from "axios";
@@ -27,7 +30,7 @@ const FormLayouts = () => {
 
     const [tagsOptions, setTagsOptions] = useState([]);
     const [categoryOptions, setCategoryOptions] = useState([]);
-    const editorRef = useRef(null);
+    const [editorState, setEditorState] = useState(EditorState.createEmpty());
     const navigate = useNavigate(); // ✅ for redirect
 
     useEffect(() => {
@@ -116,18 +119,21 @@ const FormLayouts = () => {
             if (!values.category) errors.category = "Category Required";
             if (!values.status) errors.status = "Status Required";
             if (!values.publish_date) errors.publish_date = "Publish date Required";
-            if (!values.content) errors.content = "Content Required";
-
+            const content = draftToHtml(convertToRaw(editorState.getCurrentContent()));
+            if (content.trim() === "<p></p>") {
+                errors.content = "Content Required";
+            }
             return errors;
         },
 
         onSubmit: async (values, { resetForm }) => {
             try {
+                const content = draftToHtml(convertToRaw(editorState.getCurrentContent()));
                 const formData = new FormData();
                 formData.append("title", values.title);
                 formData.append("name", values.name);
                 formData.append("slug", values.slug);
-                formData.append("content", values.content); // uncommented to send content
+                formData.append("content", content); // send html content
                 formData.append("image", values.image);
                 formData.append("category", values.category);
                 formData.append("status", values.status);
@@ -151,7 +157,7 @@ const FormLayouts = () => {
 
                 alert("News submitted successfully!");
                 formik.resetForm();
-                editorRef.current?.setContent("");
+                setEditorState(EditorState.createEmpty());
             } catch (error) {
                 if (error.response && error.response.status === 401) {
                     console.warn("Invalid or expired token. Redirecting to login...");
@@ -245,26 +251,11 @@ const FormLayouts = () => {
                                         <Col xs={12}>
                                             <Card>
                                                 <Editor
-                                                    apiKey="nmvqklkdox7m69ej8w5jr6bgg5csva7n3n9vvs1w5wsn2ot7"
-                                                    onInit={(evt, editor) => (editorRef.current = editor)}
-                                                    onEditorChange={(content) => {
-                                                        formik.setFieldValue("content", content);
-                                                    }}
-                                                    init={{
-                                                        height: 350,
-                                                        menubar: true,
-                                                        plugins: [
-                                                            "advlist", "autolink", "lists", "link", "image", "charmap", "preview", "anchor",
-                                                            "searchreplace", "visualblocks", "code", "fullscreen",
-                                                            "insertdatetime", "media", "table", "help", "wordcount"
-                                                        ],
-                                                        toolbar:
-                                                            "undo redo | blocks | bold italic forecolor | " +
-                                                            "alignleft aligncenter alignright alignjustify | " +
-                                                            "bullist numlist outdent indent | removeformat | help",
-                                                        content_style:
-                                                            "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }"
-                                                    }}
+                                                    editorState={editorState}
+                                                    onEditorStateChange={setEditorState}
+                                                    toolbarClassName="toolbarClassName"
+                                                    wrapperClassName="wrapperClassName"
+                                                    editorClassName="editorClassName"
                                                 />
                                                 {formik.touched.content && formik.errors.content && (
                                                     <div className="text-danger">{formik.errors.content}</div>

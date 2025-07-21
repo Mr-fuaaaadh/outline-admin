@@ -12,7 +12,7 @@ import { useFormik } from "formik";
 
 // import images
 import profile from "../../assets/images/profile-img.png";
-import logo from "../../assets/images/logo.svg";
+import logo from "../../../public/images/logo.jpg";
 import lightlogo from "../../assets/images/logo-light.svg";
 
 const Login = () => {
@@ -73,7 +73,7 @@ const Login = () => {
                     <Col className="col-7">
                       <div className="text-primary p-4">
                         <h5 className="text-primary">Welcome Back !</h5>
-                        <p>Sign in to continue to Skote.</p>
+                        <p>Sign in to continue to Outline Kerala.</p>
                       </div>
                     </Col>
                     <Col className="col-5 align-self-end">
@@ -212,31 +212,23 @@ const Login = () => {
                         </ul>
                       </div>
 
-                      <div className="mt-4 text-center">
+                      {/* <div className="mt-4 text-center">
                         <Link to="/pages-forgot-pwd" className="text-muted">
                           <i className="mdi mdi-lock me-1" /> Forgot your
                           password?
                         </Link>
-                      </div>
+                      </div> */}
                     </Form>
                   </div>
                 </CardBody>
               </Card>
               <div className="mt-5 text-center">
                 <p>
-                  Don&apos;t have an account ?{" "}
-                  <Link
-                    to="pages-register"
-                    className="fw-medium text-primary"
-                  >
-                    {" "}
-                    Signup now{" "}
-                  </Link>{" "}
+                  © {new Date().getFullYear()} Developed with{" "}
+                  <i className="mdi mdi-heart text-danger" /> by{" "}
+                  Rcube Ventures & Infrastructures Pvt. Ltd.
                 </p>
-                <p>
-                  © {new Date().getFullYear()} Skote. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger" /> by Themesbrand
-                </p>
+
               </div>
             </Col>
           </Row>
