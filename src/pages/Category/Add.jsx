@@ -1,35 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
-import { Alert, Card, Col, Container, Row, CardBody, CardTitle, Label, Form, Input, FormFeedback } from "reactstrap";
+import { Alert, Card, Col, Container, Row, CardBody, Label, Form, Input, FormFeedback } from "reactstrap";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { useEffect } from "react";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
-import { useNavigate } from "react-router-dom"; // ✅ for redirect
+import { useNavigate } from "react-router-dom";
 
 const FormLayouts = () => {
     document.title = "Add Category | Outline Kerala";
 
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const fileInputRef = useRef(null); // Ref for file input
 
-    const navigate = useNavigate(); // ✅ for redirect
+    const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem("authToken");
-
         if (!token) {
             console.warn("No auth token found. Redirecting to login...");
-            navigate("/login"); // ✅ redirect to login
+            navigate("/login");
             return;
         }
-
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         axios.defaults.headers.common['Content-Type'] = 'application/json';
         axios.defaults.headers.common['Accept'] = 'application/json';
-
-
-    }, []);
+    }, [navigate]);
 
     const formik = useFormik({
         initialValues: {
@@ -40,35 +37,37 @@ const FormLayouts = () => {
         validationSchema: Yup.object({
             name: Yup.string().required("Name is required"),
             slug: Yup.string().required("Slug is required"),
-            image: Yup.mixed()
-                .required("Image is required")
-                .test("fileSize", "File too large (max 5MB)", (value) => value && value.size <= 5 * 1024 * 1024)
-                .test("fileType", "Unsupported format", (value) =>
-                    value && ["image/jpeg", "image/png", "image/webp"].includes(value.type)
-                ),
+            // image validation REMOVED
         }),
-
         onSubmit: async (values, { resetForm }) => {
             try {
                 const formData = new FormData();
                 formData.append("name", values.name);
                 formData.append("slug", values.slug);
-                formData.append("image", values.image);
+                if (values.image) {
+                    formData.append("image", values.image);
+                }
+                const currentTime = new Date().toISOString();
+                formData.append("created_at", currentTime);
 
-                // Debugging: Log FormData contents
+                // Debug output
                 for (let pair of formData.entries()) {
                     console.log(`${pair[0]}:`, pair[1]);
                 }
 
-                const response = await axios.post("https://backend.outlinekerala.com/admin_app/api/categories/", formData, {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                });
+                const response = await axios.post(
+                    "https://backend.outlinekerala.com/admin_app/api/categories/",
+                    formData,
+                    { headers: { "Content-Type": "multipart/form-data" } }
+                );
 
                 setSuccessMessage("Category added successfully!");
                 setErrorMessage("");
-                resetForm();
+
+                resetForm(); // Clears Formik values
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = ""; // Clears file input
+                }
             } catch (error) {
                 if (error.response && error.response.status === 401) {
                     console.warn("Invalid or expired token. Redirecting to login...");
@@ -82,9 +81,7 @@ const FormLayouts = () => {
                 }
             }
         }
-
     });
-
 
     return (
         <React.Fragment>
@@ -95,8 +92,6 @@ const FormLayouts = () => {
                         <Col lg={12}>
                             <Card>
                                 <CardBody>
-                                    {/* <CardTitle className="mb-4">Add New Category</CardTitle> */}
-
                                     {successMessage && <Alert color="success">{successMessage}</Alert>}
                                     {errorMessage && <Alert color="danger">{errorMessage}</Alert>}
 
@@ -115,7 +110,6 @@ const FormLayouts = () => {
                                             />
                                             <FormFeedback>{formik.errors.name}</FormFeedback>
                                         </div>
-
                                         <div className="mb-3">
                                             <Label htmlFor="slug">Slug</Label>
                                             <Input
@@ -127,8 +121,8 @@ const FormLayouts = () => {
                                                 onChange={(e) => {
                                                     const formattedSlug = e.target.value
                                                         .toLowerCase()
-                                                        .replace(/\s+/g, '-')         // Replace spaces with hyphens
-                                                        .replace(/[^a-z0-9-]/g, '');   // Remove special characters
+                                                        .replace(/\s+/g, '-')
+                                                        .replace(/[^a-z0-9-]/g, '');
                                                     formik.setFieldValue("slug", formattedSlug);
                                                 }}
                                                 onBlur={formik.handleBlur}
@@ -139,10 +133,6 @@ const FormLayouts = () => {
                                                 Slug should contain only lowercase English letters, numbers, and hyphens. No Malayalam or special characters. Example: <code>new-category</code>
                                             </small>
                                         </div>
-
-
-
-
                                         <div className="mb-3">
                                             <Label htmlFor="image">Image</Label>
                                             <Input
@@ -150,17 +140,15 @@ const FormLayouts = () => {
                                                 id="image"
                                                 name="image"
                                                 accept="image/*"
+                                                innerRef={fileInputRef}
                                                 onChange={(event) => {
                                                     formik.setFieldValue("image", event.currentTarget.files[0]);
                                                 }}
                                                 onBlur={formik.handleBlur}
                                                 invalid={formik.touched.image && formik.errors.image ? true : false}
                                             />
-                                            {formik.touched.image && formik.errors.image && (
-                                                <FormFeedback>{formik.errors.image}</FormFeedback>
-                                            )}
+                                            {/* No image validation */}
                                         </div>
-
                                         <div>
                                             <button type="submit" className="btn btn-primary">Submit</button>
                                         </div>

@@ -31,6 +31,8 @@ const FormLayouts = () => {
     const [tagsOptions, setTagsOptions] = useState([]);
     const [categoryOptions, setCategoryOptions] = useState([]);
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
     const navigate = useNavigate(); // ✅ for redirect
 
     useEffect(() => {
@@ -154,20 +156,30 @@ const FormLayouts = () => {
                     formData,
                     { headers: { "Content-Type": "multipart/form-data" } }
                 );
-
-                alert("News submitted successfully!");
-                formik.resetForm();
+                setSuccessMessage("News submitted successfully!");
+                resetForm();
                 setEditorState(EditorState.createEmpty());
             } catch (error) {
+                console.error("Submission error:", error);
+            
                 if (error.response && error.response.status === 401) {
-                    console.warn("Invalid or expired token. Redirecting to login...");
                     localStorage.removeItem("authToken");
                     window.location.replace("/login");
+                } else if (error.response?.status === 400) {
+                    const slugError = error.response?.data?.slug?.[0];
+                    if (slugError) {
+                        setErrorMessage(`Slug : ${slugError}`);
+                    } else {
+                        setErrorMessage("Invalid data. Please check your input.");
+                    }
                 } else {
-                    console.error("Backend response error:", error.response?.data || error);
-                    alert("Submission failed.");
+                    setErrorMessage(
+                        error.response?.data?.error || "Submission failed. Please try again."
+                    );
                 }
             }
+            
+
         }
 
 
@@ -183,7 +195,12 @@ const FormLayouts = () => {
                             <Card>
                                 <CardBody>
                                     {/* <CardTitle className="mb-4">Form Grid Layout</CardTitle> */}
-
+                                    {successMessage && (
+                                        <div className="alert alert-success">{successMessage}</div>
+                                    )}
+                                    {errorMessage && (
+                                        <div className="alert alert-danger">{errorMessage}</div>
+                                    )}
                                     <Form onSubmit={formik.handleSubmit}>
                                         <div className="mb-3">
                                             <Label htmlFor="title">Title</Label>
