@@ -302,7 +302,7 @@ const FormLayouts = () => {
 
                                             <Col lg={4}>
                                                 <div className="mb-3">
-                                                    <Label htmlFor="category">Category</Label>
+                                                    <Label htmlFor="category">Sub Category</Label>
                                                     <Select
                                                         name="category"
                                                         options={categoryOptions}
