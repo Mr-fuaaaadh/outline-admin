@@ -92,26 +92,6 @@ const FormLayouts = () => {
             publish_date: "",
             check: false,
         },
-        // validationSchema: Yup.object({
-        //     title: Yup.string().required("This field is required"),
-        //     name: Yup.string().required("This field is required"),
-        //     slug: Yup.string().required("This field is required"),
-        //     content: Yup.string().required("This field is required"),
-        //     image: Yup.string().required("This field is required"),
-        //     category: Yup.string().required("This field is required"),
-        //     tags: Yup.array()
-        //         .min(1, "At least one tag is required")
-        //         .of(
-        //             Yup.object().shape({
-        //                 value: Yup.string().required(),
-        //                 label: Yup.string().required(),
-        //             })
-        //         )
-        //         .required("This field is required"),
-        //     status: Yup.string().required("This field is required"),
-        //     publish_date: Yup.string().required("This field is required"),
-        //     check: Yup.boolean().oneOf([true], "You must agree before submitting"),
-        // }),
         validate: values => {
             const errors = {};
             if (!values.title) errors.title = "Title Required";

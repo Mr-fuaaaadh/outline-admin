@@ -17,51 +17,36 @@ import Select from "react-select";
 import { Editor } from "@tinymce/tinymce-react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
-// Import Breadcrumb
+import ApiService from "../../ApiService";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const FormLayouts = () => {
     document.title = "update news| Outline Kerala";
 
-    const { id } = useParams(); // get id from URL params
-
+    const { id } = useParams();
+    const token = localStorage.getItem("authToken");
     const [tagsOptions, setTagsOptions] = useState([]);
     const [categoryOptions, setCategoryOptions] = useState([]);
+    const [existingImage, setExistingImage] = useState(null); // new state
     const editorRef = useRef(null);
+    const apiService = new ApiService(token);
 
-    // Fetch tags and categories options on mount
     useEffect(() => {
-        // Fetch tags
-        axios
-            .get("https://backend.outlinekerala.com/admin_app/api/tags/") // Adjust this URL to your tags endpoint
-            .then((response) => {
-                const options = response.data.map((tag) => ({
-                    value: tag.id,
-                    label: tag.name,
-                }));
-                setTagsOptions(options);
-            })
-            .catch((error) => {
-                console.error("Error fetching tags:", error);
-            });
-
-        // Fetch categories
-        axios
-            .get("https://backend.outlinekerala.com/admin_app/api/subcategories/")
-            .then((response) => {
-                const options = response.data.map((category) => ({
-                    value: category.id,
-                    label: category.name,
-                }));
-                setCategoryOptions(options);
-            })
-            .catch((error) => {
-                console.error("Error fetching categories:", error);
-            });
+        const fetchOptions = async () => {
+            try {
+                const [tags, categories] = await Promise.all([
+                    apiService.getTags(),
+                    apiService.getCategories(),
+                ]);
+                setTagsOptions(tags.map(tag => ({ value: tag.id, label: tag.name })));
+                setCategoryOptions(categories.map(cat => ({ value: cat.id, label: cat.name })));
+            } catch (error) {
+                console.error("Error fetching options:", error);
+            }
+        };
+        fetchOptions();
     }, []);
 
-    // Formik setup with enableReinitialize to update form when initialValues change
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -69,7 +54,7 @@ const FormLayouts = () => {
             name: "",
             slug: "",
             content: "",
-            image: null, // file object
+            image: null,
             category: "",
             tags: [],
             status: "",
@@ -79,14 +64,14 @@ const FormLayouts = () => {
         validate: (values) => {
             const errors = {};
             if (!values.title) errors.title = "Title Required";
-            if (!id && !values.image) errors.image = "Image required"; // require image only on create
+            if (!id && !values.image) errors.image = "Image Required";
             if (!values.slug) errors.slug = "Slug Required";
-            if (!values.tags || values.tags.length === 0) errors.tags = "Select at least one tag";
+            if (!values.tags.length) errors.tags = "Select at least one tag";
             if (!values.category) errors.category = "Category Required";
             if (!values.status) errors.status = "Status Required";
             if (!values.publish_date) errors.publish_date = "Publish date Required";
             if (!values.content) errors.content = "Content Required";
-            if (!values.check) errors.check = "You must agree before submitting";
+            // if (!values.check) errors.check = "You must agree before submitting";
             return errors;
         },
         onSubmit: async (values) => {
@@ -94,11 +79,12 @@ const FormLayouts = () => {
             formData.append("title", values.title);
             formData.append("name", values.name);
             formData.append("slug", values.slug);
-            formData.append("content", editorRef.current.getContent());
+            formData.append("content", values.content); // fix here
 
             if (values.image instanceof File) {
                 formData.append("image", values.image);
             }
+            
 
             formData.append("category", values.category);
             formData.append("status", values.status);
@@ -108,77 +94,64 @@ const FormLayouts = () => {
                 formData.append("tags", tag.value);
             });
 
+            // DEBUG: Log form data
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ": " + pair[1]);
+            }
+
             try {
                 if (id) {
-                    await axios.patch(
-                        `https://backend.outlinekerala.com/admin_app/api/news/${id}/update/`,
-                        formData,
-                        {
-                            headers: { "Content-Type": "multipart/form-data" },
-                        }
-                    );
+                    await apiService.updateNews(id, formData);
                     alert("News updated successfully!");
                 } else {
-                    await axios.post(
-                        "https://backend.outlinekerala.com/admin_app/api/news/create/",
-                        formData,
-                        {
-                            headers: { "Content-Type": "multipart/form-data" },
-                        }
-                    );
+                    await apiService.createNews(formData);
                     alert("News submitted successfully!");
                     formik.resetForm();
                     editorRef.current?.setContent("");
                 }
             } catch (error) {
-                console.error("Submission Error:", error);
-                console.error("Response Data:", error.response?.data);
-                alert("Submission failed. Check console for details.");
+                if (error.response) {
+                    console.error("Backend Error:", error.response.data);
+                } else {
+                    console.error("Submission Error:", error);
+                }
+                alert("Submission failed. Check console.");
             }
-        }
-
+        },
     });
 
-    // Fetch data for edit form
     useEffect(() => {
-        if (!id) return; // do nothing if no id
-
-        axios
-            .get(`https://backend.outlinekerala.com/admin_app/api/news/${id}/`)
-            .then((response) => {
-                const data = response.data;
-
-                // Set form values with fetched data
+        if (!id) return;
+        const fetchData = async () => {
+            try {
+                const data = await apiService.getNewsById(id);
                 formik.setValues({
                     title: data.title || "",
                     name: data.name || "",
                     slug: data.slug || "",
                     content: data.content || "",
-                    image: null, // file input can't be programmatically set
+                    image: null,
                     category: data.category || "",
-                    tags:
-                        data.tags && Array.isArray(data.tags)
-                            ? data.tags.map((tagId) => {
-                                // Find tag object from options by id
-                                const tagOption = tagsOptions.find((t) => t.value === tagId);
-                                return tagOption || { value: tagId, label: `Tag ${tagId}` };
-                            })
-                            : [],
+                    tags: (data.tags || []).map(tagId => {
+                        const found = tagsOptions.find(t => t.value === tagId);
+                        return found || { value: tagId, label: `Tag ${tagId}` };
+                    }),
                     status: data.status || "",
-                    publish_date: data.publish_date
-                        ? data.publish_date.split("T")[0]
-                        : "",
+                    publish_date: data.publish_date?.split("T")[0] || "",
                     check: false,
                 });
-
-                // Set TinyMCE content
-                if (editorRef.current) editorRef.current.setContent(data.content || "");
-            })
-            .catch((error) => {
+                editorRef.current?.setContent(data.content || "");
+                setExistingImage(data.image); // store image path
+            } catch (error) {
                 console.error("Error loading news data:", error);
                 alert("Failed to load news data.");
-            });
-    }, [id, tagsOptions]); // re-run when id or tagsOptions change (tagsOptions needed to map tags)
+            }
+        };
+
+        if (tagsOptions.length > 0) {
+            fetchData();
+        }
+    }, [id, tagsOptions]);
 
     return (
         <React.Fragment>
@@ -189,8 +162,7 @@ const FormLayouts = () => {
                         <Col xl={12}>
                             <Card>
                                 <CardBody>
-                                    <CardTitle className="mb-4">Form Grid Layout</CardTitle>
-
+                                    <CardTitle className="mb-4">News Update </CardTitle>
                                     <Form onSubmit={formik.handleSubmit} encType="multipart/form-data">
                                         <div className="mb-3">
                                             <Label htmlFor="title">Title</Label>
@@ -227,7 +199,7 @@ const FormLayouts = () => {
                                                     <Label htmlFor="status">Status</Label>
                                                     <select
                                                         name="status"
-                                                        id="slug"
+                                                        id="status"
                                                         className={`form-control ${formik.touched.status && formik.errors.status ? "is-invalid" : ""
                                                             }`}
                                                         value={formik.values.status}
@@ -245,7 +217,7 @@ const FormLayouts = () => {
                                             </Col>
                                         </Row>
 
-                                        {/* TinyMCE Content */}
+                                        {/* TinyMCE Editor */}
                                         <Col xs={12}>
                                             <Card>
                                                 <Editor
@@ -254,33 +226,17 @@ const FormLayouts = () => {
                                                     onEditorChange={(content) => {
                                                         formik.setFieldValue("content", content);
                                                     }}
-                                                    initialValue={formik.values.content}
+                                                    value={formik.values.content}
                                                     init={{
-                                                        height: 350,
+                                                        height: 500,
                                                         menubar: true,
                                                         plugins: [
-                                                            "advlist",
-                                                            "autolink",
-                                                            "lists",
-                                                            "link",
-                                                            "image",
-                                                            "charmap",
-                                                            "preview",
-                                                            "anchor",
-                                                            "searchreplace",
-                                                            "visualblocks",
-                                                            "code",
-                                                            "fullscreen",
-                                                            "insertdatetime",
-                                                            "media",
-                                                            "table",
-                                                            "help",
-                                                            "wordcount",
+                                                            "advlist", "autolink", "lists", "link", "image", "charmap", "preview",
+                                                            "anchor", "searchreplace", "visualblocks", "code", "fullscreen",
+                                                            "insertdatetime", "media", "table", "help", "wordcount",
                                                         ],
                                                         toolbar:
-                                                            "undo redo | blocks | bold italic forecolor | " +
-                                                            "alignleft aligncenter alignright alignjustify | " +
-                                                            "bullist numlist outdent indent | removeformat | help",
+                                                            "undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
                                                         content_style:
                                                             "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
                                                     }}
@@ -338,13 +294,12 @@ const FormLayouts = () => {
                                                     />
                                                     <FormFeedback>{formik.errors.image}</FormFeedback>
 
-                                                    {/* Show current image preview if editing */}
-                                                    {id && !formik.values.image && (
+                                                    {id && !formik.values.image && existingImage && (
                                                         <div className="mt-2">
                                                             <strong>Current Image:</strong>
                                                             <br />
                                                             <img
-                                                                src={`https://backend.outlinekerala.com${formik.values.image || ""}`}
+                                                                src={`https://backend.outlinekerala.com${existingImage}`}
                                                                 alt="Current"
                                                                 style={{ width: "150px", marginTop: "5px" }}
                                                             />
@@ -369,6 +324,25 @@ const FormLayouts = () => {
                                                 </div>
                                             </Col>
                                         </Row>
+
+                                        <div className="form-check mb-3">
+                                            <Input
+                                                type="checkbox"
+                                                id="check"
+                                                name="check"
+                                                className="form-check-input"
+                                                checked={formik.values.check}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                            />
+                                            <Label className="form-check-label" htmlFor="check">
+                                                I confirm the information is correct
+                                            </Label>
+                                            {formik.touched.check && formik.errors.check && (
+                                                <div className="text-danger">{formik.errors.check}</div>
+                                            )}
+                                        </div>
+
                                         <button type="submit" className="btn btn-primary w-md">
                                             {id ? "Update" : "Submit"}
                                         </button>
